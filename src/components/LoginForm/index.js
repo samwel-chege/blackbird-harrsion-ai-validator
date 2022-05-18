@@ -10,7 +10,11 @@ import Typography from '@mui/material/Typography';
 import logo from '../../assets/logo.svg';
 
 
+
+
+
 export default function LoginForm() {
+  const [error, setError]= useState({email: false, password: false});
   const [showAlert, setShowAlert] = useState(false);
   const validateForm = (event) => {
     event.preventDefault()
@@ -18,10 +22,21 @@ export default function LoginForm() {
     const email = data.get('email');
     const password = data.get('password');
 
-    // Add validation code here
+    //add validation code here
+  
+    var mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    var passwordformat = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#%&])(?=.{8,})");
+    //minimum eight characters, at least one uppercase letter, one lowercase letter , one number and one special character
+    if (email.match(mailformat) && passwordformat.test(password)){
+      setError({email: false, password: false});
+      setShowAlert("Login successful");
+    }else if (!email.match(mailformat)){
+      setError({email:true});
+    }else if (!passwordformat.test(password)){
+      setError({password: true});
+    }
 
   }
-
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -30,7 +45,7 @@ export default function LoginForm() {
       password: data.get('password'),
     });
     validateForm(event);
-    setShowAlert("Login Successful");
+    // setShowAlert("Login Successful");
   };
 
   return (
@@ -42,7 +57,7 @@ export default function LoginForm() {
           onClose={() => setShowAlert(false)}
           message={showAlert}
         >
-          <Alert>{showAlert}</Alert>
+        <Alert severity='success'>{showAlert}</Alert>
         </Snackbar>
       }
       <Grid
@@ -85,6 +100,8 @@ export default function LoginForm() {
               id="email"
               label="Email Address"
               name="email"
+              error={error.email}
+              helperText={error.email ? "Invalid email address" : ""}
               autoComplete="email"
               autoFocus
             />
@@ -94,9 +111,12 @@ export default function LoginForm() {
               fullWidth
               name="password"
               label="Password"
+              error={error.password}
+              helperText={error.password ? "Incorrect password format" : ""}
               type="password"
               id="password"
               autoComplete="current-password"
+              
             />
             <Button
               type="submit"
